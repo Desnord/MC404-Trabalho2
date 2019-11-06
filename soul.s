@@ -29,8 +29,6 @@ salva:
 
 # Syscalls
 read_ultrasonic_sensor:
-    li t1,16
-    bne a7,t1,n_rd_us
         li t1,0xFFFF0020 # endereco do periferico
         sw zero,0(t1) # inicia leitura atribuindo zero ao endereco
 
@@ -44,25 +42,6 @@ read_ultrasonic_sensor:
             bne t1,t2,while_rus
                 li t3,0xFFFF0024
                 lw a0,0(t3)
-    n_rd_us:
-
-get_time:
-    li t1,21
-    bne a7,t1,n_sc_gt
-
-    n_sc_gt:
-
-set_time:
-    li t1,22
-    bne a7,t1,n_sc_st
-
-    n_sc_st:
-
-write:
-    li t1,64
-    bne a7,t1,n_sc_wt
-
-    n_sc_wt:
 
 restaura:
     lw a1, 0(t6)  # carrega a1 
