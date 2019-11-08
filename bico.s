@@ -62,8 +62,27 @@ set_time:
     ret
 #-----------------------------------------------------------------------------------------------
 puts:
-    
-    li a7, 64
+    # puts só tem 1 parametro (a0), e esse parametro tem o endereco da string a ser escrita
+
+    mv t1,a0 # o parametro tem a string a ser escrita
+
+    #descobre o tamanho da string, ou seja, conta até encontrar \0
+    li t2,0
+    while_not_EOS:
+        lb t3,0(t1)
+        beq t3,zero,byte_null
+                addi t2,t2,1 # avanca contagem de tamanho
+                addi t1,t1,1 # passa para o proximo byte
+            j while_not_EOS
+        byte_null:
+
+    mv t1,a0 # o parametro tem a string a ser escrita
+
+    # prepara syscall
+    li a0,1 # [1 = output] || [0 = input] //// file descriptor
+    mv a1,t1 # poe endereco da string a ser escrita em a1
+    mv a2,t2 # poe o tamanho encontrado da string no parametro 
+    li a7,64 # syscall write
     ecall
     ret
 #-----------------------------------------------------------------------------------------------
