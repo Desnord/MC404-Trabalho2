@@ -39,18 +39,25 @@ int_handler:
 
     li t0, 16
     beq t0, a7, read_ultrasonic_sensor
+
     li t0, 17
     beq t0, a7, set_servo_angles
+
     li t0, 18
     beq t0, a7, set_engine_torque
+
     li t0, 19
     beq t0, a7, read_gps
+
     li t0, 20
     beq t0, a7, read_gyroscope
+
     li t0, 21
     beq t0, a7, get_time
+
     li t0, 22
     beq t0, a7, set_time
+    
     li t0, 64
     beq t0, a7, write
 #-----------------------------------------------------------------------------------------------
