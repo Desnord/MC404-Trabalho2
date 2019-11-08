@@ -253,22 +253,56 @@ set_time:
     j ret_syscall
 #-----------------------------------------------------------------------------------------------
 read_ultrasonic_sensor:
-    li t1,0xFFFF0020 # endereco do periferico
-    sw zero,0(t1) # inicia leitura atribuindo zero ao endereco
+  li t1,0xFFFF0020 # endereco do periferico
+  sw zero,0(t1) # inicia leitura atribuindo zero ao endereco
 
-    #le 0xFFFF0020 ate que seu valor seja 1
-    while_rus:
-        li t1,0xFFFF0020
-        lw t1,0(t1)
+  #le 0xFFFF0020 ate que seu valor seja 1
+  while_rus:
+      li t1,0xFFFF0020
+      lw t1,0(t1)
 
-        li t2,1
-        #se 0xFFFF0020 for 1 le valor retornado pelo sensor de ultrassom (em 0xFFFF0024)
-        bne t1,t2,while_rus
-            li t3,0xFFFF0024
-            lw a0,0(t3)
-
+      li t2,1
+      #se 0xFFFF0020 for 1 le valor retornado pelo sensor de ultrassom (em 0xFFFF0024)
+      bne t1,t2,while_rus
+          li t3,0xFFFF0024
+          lw a0,0(t3)
+  j ret_syscall
 #-----------------------------------------------------------------------------------------------
+write:
+  li t1,1
+  bne a0,t1,not_stdout
+    # escreve [valor em a2] bytes
+    li t3,0
+    while_write:
+      bge t3,a2,not_stdout:
+        lb t4,0(a1) # le o primeiro byte
+
+        # poe o byte no endereco do periferico
+        li t1,0xFFFF0109
+        sb t4,0(t1)
+
+
+        # atribui valor 1 ao periferico para iniciar transmissao
+        li t2,0xFFFF0108
+        li t1,1
+        sw t1,0(t2)
+
+        # espera o valor do periferico ser 0 para prosseguir com a escrita
+        while_wait_write:
+            lw t1,0(t2)
+            beq t1,zero,panama
+              j while_wait_write
+            panama:
+
+        addi t3,t3,1 # prossegue ao proximo byte
+        addi a1,a1,1 # prossegue ao proximo endereco 
+        j while_write
+
+    mv a0,t3
+  not_stdout:
+  j ret_syscall
 #-----------------------------------------------------------------------------------------------
+
 #-----------------------------------------------------------------------------------------------
 _start:
     # Configura o tratador de interrupções
@@ -300,6 +334,40 @@ _start:
         li t1, GPT_GEN
         li t0, 100
         sw t0, 0(t1)
+    
+    # seta torques em 0
+
+    # seta torque motor 1 = 0
+    li a0,0
+    li a1,0
+    li a7,18
+    ecall
+
+    # seta torque motor 2 = 0
+    li a0,1
+    li a1,0
+    li a7,18
+    ecall
+
+    # seta posicao do corpo do ouli
+    
+     # seta BASE
+    li a0,1
+    li a1,31
+    li a7,17
+    ecall
+
+    # seta MID
+    li a0,2
+    li a1,80
+    li a7,17
+    ecall
+
+    # seta TOP
+    li a0,3
+    li a1,78
+    li a7,17
+    ecall
 
     # Muda para o Modo de usuário
     csrr t1, mstatus # Seta os bits 11 e 12 (MPP)
