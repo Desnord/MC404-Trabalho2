@@ -12,11 +12,11 @@
 set_torque:
     #checa a validade dos valores
     li t0, -100
-    blt t0, a0, invalid_value
-    blt t0, a1, invalid_value
+    blt a0, t0, invalid_value
+    blt a1, t0, invalid_value
     li t0, 100
-    bgt t0, a0, invalid_value
-    bgt t0, a1, invalid_value
+    bgt a0, t0, invalid_value
+    bgt a1, t0, invalid_value
 
     mv t0, a0
     mv t1, a1

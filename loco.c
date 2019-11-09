@@ -27,7 +27,5 @@ int main()
 { 
     int a;
     a = set_torque(30, 30);
-    a = set_engine_torque(1, 30);
-    a = set_engine_torque(2, 30);
     return 0;
 }
