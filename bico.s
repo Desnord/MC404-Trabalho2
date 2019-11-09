@@ -1,3 +1,14 @@
+#-----------------------------------------------------------------------------------------------
+.globl puts
+.globl set_time
+.globl get_time
+.globl get_gyro_angles
+.globl get_current_GPS_position
+.globl get_us_distance
+.globl set_head_servo
+.globl set_engine_torque
+.globl set_torque
+
 set_torque:
     #checa a validade dos valores
     li t0, -100
@@ -25,7 +36,7 @@ set_torque:
     invalid_value:
         li a0, -1
         ret
-#-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------s
 set_engine_torque:
     li a7, 18
     ecall

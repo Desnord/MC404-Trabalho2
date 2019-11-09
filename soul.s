@@ -98,7 +98,7 @@ gpt_treatment:
     #checa se nao ha interrupcoes nao tratadas
     li a0, GPT_FLAG
     lw a0, 0(a0)
-    bneq zero, a0, ret_syscall 
+    bne zero, a0, ret_syscall 
 
     #adiciona 1 no tempo
     la a0, rot_tempo
@@ -126,7 +126,7 @@ set_servo_angles:
     beq a0, t0, servo_base
     li t0, 2
     beq a0, t0, servo_mid
-    li t0 3
+    li t0, 3
     beq a0, t0, servo_top
 
     #se não pulou, id é inválido
@@ -281,7 +281,7 @@ write:
     # escreve [valor em a2] bytes
     li t3,0
     while_write:
-      bge t3,a2,not_stdout:
+      bge t3,a2,not_stdout
         lb t4,0(a1) # le o primeiro byte
 
         # poe o byte no endereco do periferico
@@ -311,6 +311,7 @@ write:
 #-----------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------
+.globl _start
 _start:
     # Configura o tratador de interrupções
     la t0, int_handler # Grava o endereço do rótulo int_handler
@@ -382,7 +383,7 @@ _start:
     and t1, t1, t2 # com o valor 00
     csrw mstatus, t1
 
-    la t0, user # Grava o endereço do rótulo user
+    la t0, main # Grava o endereço do rótulo user
     csrw mepc, t0 # no registrador mepc
 
     mret # PC <= MEPC; MIE <= MPIE; Muda modo para MPP
