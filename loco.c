@@ -25,7 +25,17 @@ void puts(const char*);
 
 int main()
 { 
-    int a;
-    a = set_torque(30, 30);
+    /*int a;
+    a = set_torque(30, 30);*/
+    char teste[7];
+    teste[0] = 's';
+    teste[1] = 't';
+    teste[2] = 'r';
+    teste[3] = 'i';
+    teste[4] = 'n';
+    teste[5] = 'g';
+    teste[6] = '\0'; 
+    puts(&teste[0]);
+
     return 0;
 }

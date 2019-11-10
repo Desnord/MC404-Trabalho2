@@ -282,21 +282,20 @@ write:
     li t3,0
     while_write:
       bge t3,a2,not_stdout
-        lb t4,0(a1) # le o primeiro byte
+        lb t4,0(a1) # le byte atual
 
         # poe o byte no endereco do periferico
         li t1,0xFFFF0109
         sb t4,0(t1)
 
-
         # atribui valor 1 ao periferico para iniciar transmissao
         li t2,0xFFFF0108
         li t1,1
-        sw t1,0(t2)
+        sb t1,0(t2)
 
         # espera o valor do periferico ser 0 para prosseguir com a escrita
         while_wait_write:
-            lw t1,0(t2)
+            lb t1,0(t2)
             beq t1,zero,panama
               j while_wait_write
             panama:
@@ -338,7 +337,7 @@ _start:
 
     gpt_setup:
         la t0, rot_tempo
-        sw zero, 0(s0)
+        sw zero, 0(t0)
         li t1, GPT_GEN
         li t0, 100
         sw t0, 0(t1)

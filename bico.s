@@ -77,7 +77,7 @@ puts:
 
     mv t1,a0 # o parametro tem a string a ser escrita
 
-    #descobre o tamanho da string, ou seja, conta até encontrar \0
+    #descobre o tamanho da string, ou seja, conta até encontrar '\0' == (0) == (null)
     li t2,0
     while_not_EOS:
         lb t3,0(t1)
