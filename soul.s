@@ -64,6 +64,12 @@ int_handler:
 #-----------------------------------------------------------------------------------------------
 ret_syscall: 
     restaura:
+
+        # arruma mepc para retornar ao ponto de execucao anterior
+        csrr t0, mepc
+        addi t0, t0, 4 
+        csrw mepc, t0  
+
         lw a1, 0(t6)  # carrega a1 
         lw a2, 4(t6)  # carrega a2 
         lw a3, 8(t6)  # carrega a3 
@@ -96,7 +102,13 @@ ret_syscall:
         mret     
 #-----------------------------------------------------------------------------------------------
 ret_syscall_gpt: 
-    restaura:
+    restaura2:
+
+        # arruma mepc para retornar ao ponto de execucao anterior
+        csrr t0, mepc
+        addi t0, t0, 4 
+        csrw mepc, t0  
+
         lw a1, 0(t6)  # carrega a1 
         lw a2, 4(t6)  # carrega a2 
         lw a3, 8(t6)  # carrega a3 
@@ -123,10 +135,6 @@ ret_syscall_gpt:
         lw a0, 96(t6)
         csrrw t6,mscratch,t6 
 
-        # arruma mepc para retornar ao ponto de execucao anterior
-        csrr t0, mepc
-        addi t0, t0, 4 
-        csrw mepc, t0  
         mret     
 #-----------------------------------------------------------------------------------------------
 gpt_treatment: 
