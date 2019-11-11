@@ -21,12 +21,12 @@ set_torque:
     mv t0, a0
     mv t1, a1
 
-    li a0, 1
+    li a0, 0
     mv a1, t0
     li a7, 18
     ecall
 
-    li a0, 2
+    li a0, 1
     mv a1, t1
     li a7, 18
     ecall

@@ -95,10 +95,6 @@ ret_syscall:
         lw s11, 92(t6) # carrega s11 
         csrrw t6,mscratch,t6 
 
-        # arruma mepc para retornar ao ponto de execucao anterior
-        csrr t0, mepc
-        addi t0, t0, 4 
-        csrw mepc, t0  
         mret     
 #-----------------------------------------------------------------------------------------------
 ret_syscall_gpt: 
@@ -140,7 +136,7 @@ ret_syscall_gpt:
 gpt_treatment: 
     #checa se ha interrupcoes nao tratadas
     li a0, GPT_FLAG
-    lw a0, 0(a0)
+    lb a0, 0(a0)
     bne zero, a0, ret_syscall 
 
     #adiciona 1 no tempo
@@ -156,7 +152,7 @@ gpt_treatment:
 
     #set do valor para 0 (interrupção tratada)
     li a0, GPT_FLAG
-    sw zero, 0(a0)
+    sb zero, 0(a0)
 
     j ret_syscall_gpt
 
@@ -165,11 +161,11 @@ set_servo_angles:
 #parâmetros: a0(id do servo), a1(ângulo para o servo)
 #retorno: a0(-1 se o ângulo é inválido, -2 se o id é inválido , 0 caso contrário)
 
-    li t0, 1
+    li t0, 0
     beq a0, t0, servo_base
-    li t0, 2
+    li t0, 1
     beq a0, t0, servo_mid
-    li t0, 3
+    li t0, 2
     beq a0, t0, servo_top
 
     #se não pulou, id é inválido
@@ -184,7 +180,7 @@ set_servo_angles:
         li t0, 116
         bgt a1, t0, erro_angulo_servo
         li a0, 0xFFFF001E
-        sw a1, 0(a0)
+        sb a1, 0(a0)
         j ret_syscall
     servo_mid:
         li t0, 52
@@ -192,14 +188,14 @@ set_servo_angles:
         li t0, 90
         bgt a1, t0, erro_angulo_servo
         li a0, 0xFFFF001D
-        sw a1, 0(a0)
+        sb a1, 0(a0)
         j ret_syscall
     servo_top:
         blt a1, zero, erro_angulo_servo
         li t0, 156
         bgt a1, t0, erro_angulo_servo
         li a0, 0xFFFF001C
-        sw a1, 0(a0)
+        sb a1, 0(a0)
         j ret_syscall
 
     erro_angulo_servo:
@@ -210,9 +206,9 @@ set_engine_torque:
     #parâmetros: a0(id do motor), a1(torque do motor)
     #retorno: a0(-1 se o id for invalido, 0 caso contrario)
 
-    li t0, 1
+    li t0, 0
     beq t0, a0, motor_1
-    li t0, 2
+    li t0, 1
     beq t0, a0, motor_2
     
     #id inválido
@@ -402,19 +398,19 @@ _start:
     # seta posicao do corpo do ouli
     
      # seta BASE
-    li a0,1
+    li a0,0
     li a1,31
     li a7,17
     ecall
 
     # seta MID
-    li a0,2
+    li a0,1
     li a1,80
     li a7,17
     ecall
 
     # seta TOP
-    li a0,3
+    li a0,2
     li a1,78
     li a7,17
     ecall
@@ -430,9 +426,6 @@ _start:
 
     mret # PC <= MEPC; MIE <= MPIE; Muda modo para MPP
 #-----------------------------------------------------------------------------------------------
-user:
-    loop:
-        j loop
 
 rot_tempo: .skip 4
 reg_buffer: .skip 200

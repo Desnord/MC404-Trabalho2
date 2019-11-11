@@ -25,17 +25,25 @@ void puts(const char*);
 
 int main()
 { 
-    /*int a;
-    a = set_torque(30, 30);*/
-    char teste[7];
+    int a;
+    short int b;
+    Vector3 vector;
+    a = set_head_servo(0, 31);
+    a = set_head_servo(1, 80);
+    a = set_head_servo(2, 78);
+    a = set_torque(30, 30);
+    char teste[8];
     teste[0] = 's';
     teste[1] = 't';
     teste[2] = 'r';
     teste[3] = 'i';
     teste[4] = 'n';
     teste[5] = 'g';
-    teste[6] = '\0'; 
+    teste[7] = '\0'; 
     puts(&teste[0]);
-
+    get_current_GPS_position(&vector);
+    get_gyro_angles(&vector);
+    b = get_us_distance();
+    a = set_head_servo(0, 80);
     return 0;
 }
