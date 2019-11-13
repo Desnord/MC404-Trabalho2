@@ -23,6 +23,57 @@ void set_time(unsigned int t);
 
 void puts(const char*);
 
+/*           Outras Funcoes           */
+
+int seno(int x)
+{
+  return 1;
+}
+
+int cosseno(int x)
+{
+  return 1;
+}
+
+/*retorna o tamanho de um numero (para criar string)*/
+int tamanhoNumero(int x)
+{
+   int aux = 0;
+   if(x < 0)
+       aux = 1;
+
+   while(x != 0)
+   {
+     aux++;
+     x /= 10;
+   }
+   return aux;
+}
+
+/*retorna a conversao do inteiro em string*/
+char *IntToString(int x, char ret[])
+{
+  /*ve se o numero é negativo*/
+  int tam = tamanhoNumero(x);
+  if(x < 0)
+  {
+    ret[0] = '-';
+    x *= -1;
+  }
+
+  /*converte cada casa do numero em char*/
+  ret[tam] = '\0';
+
+  while(x != 0)
+  {
+    tam--;
+    ret[tam] = 48 + x%10;
+    x /= 10;
+  }
+
+  return ret;
+}
+
 int main()
 { 
     int a;
@@ -32,15 +83,8 @@ int main()
     a = set_head_servo(1, 80);
     a = set_head_servo(2, 78);
     a = set_torque(30, 30);
-    char teste[8];
-    teste[0] = 's';
-    teste[1] = 't';
-    teste[2] = 'r';
-    teste[3] = 'i';
-    teste[4] = 'n';
-    teste[5] = 'g';
-    teste[7] = '\0'; 
-    puts(&teste[0]);
+
+
     get_current_GPS_position(&vector);
     get_gyro_angles(&vector);
     b = get_us_distance();
