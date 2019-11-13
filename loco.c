@@ -35,6 +35,13 @@ int cosseno(int x)
   return 1;
 }
 
+/*escreve e pula linha*/
+void putsln(char *str)
+{
+  puts(str);
+  puts("\n\0");
+}
+
 /*retorna o tamanho de um numero (para criar string)*/
 int tamanhoNumero(int x)
 {
@@ -49,7 +56,6 @@ int tamanhoNumero(int x)
    }
    return aux;
 }
-
 /*retorna a conversao do inteiro em string*/
 char *IntToString(int x, char ret[])
 {
