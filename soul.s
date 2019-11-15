@@ -7,6 +7,7 @@
 int_handler:
     salva:
         csrrw t6,mscratch,t6
+        addi t6, t6, -104
         sw a1, 0(t6)  # salva a1 
         sw a2, 4(t6)  # salva a2 
         sw a3, 8(t6)  # salva a3 
@@ -30,13 +31,12 @@ int_handler:
         sw s9, 84(t6) # salva s9
         sw s10, 88(t6) # salva s10 
         sw s11, 92(t6) # salva s11 
-        sw a0, 96(t6)
+        sw a0, 96(t6)   #salva a0
+        sw t0, 100(t6)   #salva a0
 
     #ve se é interrupcao do gpt
     csrr t0, mcause
     blt t0, zero, gpt_treatment
-    #ve se eh zero
-    beq t0, zero, ret_syscall
 
     li t0, 16
     beq t0, a7, read_ultrasonic_sensor
@@ -93,51 +93,33 @@ ret_syscall:
         lw s9, 84(t6) # carrega s9
         lw s10, 88(t6) # carrega s10 
         lw s11, 92(t6) # carrega s11 
+        lw t0, 100(t6)   #carrega t0
+        addi t6, t6, 104
         csrrw t6,mscratch,t6 
 
         mret     
 #-----------------------------------------------------------------------------------------------
-ret_syscall_gpt: 
+ret_gpt: 
     restaura2:
 
         # arruma mepc para retornar ao ponto de execucao anterior
         csrr t0, mepc
-        addi t0, t0, 4 
         csrw mepc, t0  
 
         lw a1, 0(t6)  # carrega a1 
-        lw a2, 4(t6)  # carrega a2 
-        lw a3, 8(t6)  # carrega a3 
-        lw a4, 12(t6) # carrega a4
-        lw a5, 16(t6) # carrega a5
-        lw a6, 20(t6) # carrega a6
-        lw a7, 24(t6) # carrega a7
-        lw t1, 28(t6) # carrega t1 
-        lw t2, 32(t6) # carrega t2 
-        lw t3, 36(t6) # carrega t3 
-        lw t4, 40(t6) # carrega t4
-        lw t5, 44(t6) # carrega t5
-        lw s1, 48(t6) # carrega s1
-        lw s2, 52(t6) # carrega s2
-        lw s3, 56(t6) # carrega s3
-        lw s4, 60(t6) # carrega s4
-        lw s5, 64(t6) # carrega s5
-        lw s6, 72(t6) # carrega s6
-        lw s7, 76(t6) # carrega s7
-        lw s8, 80(t6) # carrega s8
-        lw s9, 84(t6) # carrega s9
-        lw s10, 88(t6) # carrega s10 
-        lw s11, 92(t6) # carrega s11 
-        lw a0, 96(t6)
+        lw a0, 96(t6)   #carrega a0
+        lw t0, 100(t6)   #carrega t0
+        addi t6, t6, 104
+
         csrrw t6,mscratch,t6 
 
         mret     
 #-----------------------------------------------------------------------------------------------
 gpt_treatment: 
     #checa se ha interrupcoes nao tratadas
-    li a0, GPT_FLAG
+    la a0, GPT_FLAG
     lb a0, 0(a0)
-    bne zero, a0, ret_syscall 
+    beq zero, a0, ret_gpt 
 
     #adiciona 1 no tempo
     la a0, rot_tempo
@@ -145,16 +127,16 @@ gpt_treatment:
     addi a1, a1, 1
     sw a1, 0(a0)
 
+    #set do valor para 0 (interrupção tratada)
+    la a0, GPT_FLAG
+    sb zero, 0(a0)
+
     #manda esperar 100ms
-    li a0, GPT_GEN
+    la a0, GPT_GEN
     li t0, 100
     sw t0, 0(a0)
 
-    #set do valor para 0 (interrupção tratada)
-    li a0, GPT_FLAG
-    sb zero, 0(a0)
-
-    j ret_syscall_gpt
+    j ret_gpt
 
 #-----------------------------------------------------------------------------------------------
 set_servo_angles:
@@ -375,9 +357,10 @@ _start:
     mv sp, t1
 
     gpt_setup:
-        la t0, rot_tempo
-        sw zero, 0(t0)
-        li t1, GPT_GEN
+        la t0, rot_tempo    #set do tempo em 0
+        li t1, 1
+        sw t1, 0(t0)
+        la t1, GPT_GEN  #gera a primeira interrupção
         li t0, 100
         sw t0, 0(t1)
     
