@@ -42,7 +42,6 @@ int main()
 
   Vector3 *vector;
   get_gyro_angles(vector);
-  set_torque(30, 30);
   achar_amigo(friends_locations[0].x, friends_locations[0].z);
   
   while (1) {
@@ -59,7 +58,7 @@ void alinha_x(int sinal) {
   if (sinal == 1) {
     /*o angulo para o eixo x positivo e 90 - gira o uoli até chegar no angulo desejado */
     set_torque(20, -20);
-    while (aux->y < 80 || aux->y > 100) {
+    while (aux->y < 85 || aux->y > 95) {
       get_gyro_angles(aux);
     }
     set_torque(0,0);
@@ -73,6 +72,7 @@ void alinha_x(int sinal) {
     }
     set_torque(0,0);
     return;
+  }
 }
 
 void alinha_z(int sinal) {
@@ -81,25 +81,21 @@ void alinha_z(int sinal) {
   if (sinal == 1) {
     /*o angulo para o eixo x positivo e 90 - gira o uoli até chegar no angulo desejado */
     set_torque(20, -20);
-    while (aux->y < 355 || aux->y > 5) {
-      if (aux->y < 5) {
-        set_torque(0,0);
-        break;
-      }
+    while (aux->y < 5) {
       get_gyro_angles(aux);
     }
+    set_torque(0,0);
+    return;
   }
   else {
+    /*o angulo para o eixo x negativo é 270 - gira o uoli até chegar no angulo desejado */
+    set_torque(20, -20);
     while (aux->y < 175 || aux->y > 185) {
-      set_torque(20, -20);
-      if (aux->y > 175 && aux->y < 185) {
-        set_torque(0,0);
-        break;
-      }
       get_gyro_angles(aux);
     }
-  }  
-  return;
+    set_torque(0,0);
+    return;
+  }
 }
 
 int get_distance_squared(int pos1_x, int pos1_z, int pos2_x, int pos2_z) {
@@ -117,17 +113,16 @@ void achar_amigo(int pos_x, int pos_z) {
   Vector3 *uoli_pos;
   get_current_GPS_position(uoli_pos);
   while (get_distance_squared(uoli_pos->x, uoli_pos->z, pos_x, pos_z) > 25) {
-    alinha_x(1);
-    while ((get_us_distance() == -1) || get_us_distance() < 100) {
-      set_torque(30, 30);
-      puts("aqui");
-      puts(barran);
-    }
-    /*set_torque(0, 0);
     alinha_z(1);
-    while (get_us_distance() == -1) {
-      set_torque(10, 10);
-    }*/
+    set_torque(20, 20);
+    while (get_us_distance() > 100 || get_us_distance() != -1) {
+      continue;
+    }
+    alinha_x(1);
+    set_torque(20, 20);
+    while (get_us_distance() > 100 || get_us_distance() != -1) {
+      continue;
+    }
   }
 }
 
