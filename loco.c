@@ -38,6 +38,9 @@ int main()
   int a, aux, i;
   short int b;
 
+
+  set_engine_torque(20,20);
+
   Vector3 *vector;
   get_gyro_angles(vector);
   achar_amigo(friends_locations[0].x, friends_locations[0].z);
@@ -49,9 +52,11 @@ int main()
   return 0;
 }
 
-/*parametros: 1 (se alinhamento positivo) ou -1 (alinhamento negativo)*/
+/*parametros: 1 (angulo para alinhamento)*/
 void alinha_angulo(int angulo) {
   /*o angulo para o eixo x positivo e 90 - gira o uoli até chegar no angulo desejado */
+  Vector3 *aux;
+  get_gyro_angles(aux);
   set_torque(20, -20);
   while (aux->y < angulo - 5 || aux->y > angulo + 5) {
     get_gyro_angles(aux);
@@ -115,3 +120,7 @@ char *IntToString(int x, char ret[])
   return ret;
 }
 
+void freiar()
+{
+
+}
