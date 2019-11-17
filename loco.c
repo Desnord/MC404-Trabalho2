@@ -82,6 +82,20 @@ char *IntToString(int x, char ret[])
 
 int main()
 { 
+    char barran[2];
+    barran[0] = '\n';
+    barran[1] = '\0';
+
+    char string[20];
+
+    puts(IntToString(327,string));
+    puts(barran);
+    puts(IntToString(32,string));
+    puts(barran);
+    puts(IntToString(4,string));
+    puts(barran);
+
+    
     int a;
     short int b;
     Vector3 vector;
