@@ -18,9 +18,7 @@ void set_time(unsigned int t);
 
 void puts(const char*);
 
-void alinha_z(int sinal);
-
-void alinha_x(int sinal);
+void alinha_angulo(int sinal);
 
 void achar_amigo(int pos_x, int pos_z);
 
@@ -52,50 +50,14 @@ int main()
 }
 
 /*parametros: 1 (se alinhamento positivo) ou -1 (alinhamento negativo)*/
-void alinha_x(int sinal) {
-  Vector3 *aux;
-  get_gyro_angles(aux);
-  if (sinal == 1) {
-    /*o angulo para o eixo x positivo e 90 - gira o uoli até chegar no angulo desejado */
-    set_torque(20, -20);
-    while (aux->y < 85 || aux->y > 95) {
-      get_gyro_angles(aux);
-    }
-    set_torque(0,0);
-    return;
+void alinha_angulo(int angulo) {
+  /*o angulo para o eixo x positivo e 90 - gira o uoli até chegar no angulo desejado */
+  set_torque(20, -20);
+  while (aux->y < angulo - 5 || aux->y > angulo + 5) {
+    get_gyro_angles(aux);
   }
-  else {
-    /*o angulo para o eixo x negativo é 270 - gira o uoli até chegar no angulo desejado */
-    set_torque(20, -20);
-    while (aux->y < 265 || aux->y > 275) {
-      get_gyro_angles(aux);
-    }
-    set_torque(0,0);
-    return;
-  }
-}
-
-void alinha_z(int sinal) {
-  Vector3 *aux;
-  get_gyro_angles(aux);
-  if (sinal == 1) {
-    /*o angulo para o eixo x positivo e 90 - gira o uoli até chegar no angulo desejado */
-    set_torque(20, -20);
-    while (aux->y < 5) {
-      get_gyro_angles(aux);
-    }
-    set_torque(0,0);
-    return;
-  }
-  else {
-    /*o angulo para o eixo x negativo é 270 - gira o uoli até chegar no angulo desejado */
-    set_torque(20, -20);
-    while (aux->y < 175 || aux->y > 185) {
-      get_gyro_angles(aux);
-    }
-    set_torque(0,0);
-    return;
-  }
+  set_torque(0,0);
+  return;
 }
 
 int get_distance_squared(int pos1_x, int pos1_z, int pos2_x, int pos2_z) {
@@ -112,18 +74,7 @@ void achar_amigo(int pos_x, int pos_z) {
   barran[1] = '\0';
   Vector3 *uoli_pos;
   get_current_GPS_position(uoli_pos);
-  while (get_distance_squared(uoli_pos->x, uoli_pos->z, pos_x, pos_z) > 25) {
-    alinha_z(1);
-    set_torque(20, 20);
-    while (get_us_distance() > 100 || get_us_distance() != -1) {
-      continue;
-    }
-    alinha_x(1);
-    set_torque(20, 20);
-    while (get_us_distance() > 100 || get_us_distance() != -1) {
-      continue;
-    }
-  }
+  
 }
 
 int tamanhoNumero(int x)
