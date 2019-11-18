@@ -38,8 +38,21 @@ int main()
   int a, aux, i;
   short int b;
 
+  /* teste */
+  set_torque(-10,-10);
 
-  set_engine_torque(20,20);
+  unsigned int aa = get_time();
+  unsigned int bb = get_time();
+
+  while(bb - aa != 100)
+  {
+    bb = get_time();
+  }
+
+  puts("teste\0");
+  set_torque(10,10);
+
+  /* fim teste */
 
   Vector3 *vector;
   get_gyro_angles(vector);
@@ -120,7 +133,58 @@ char *IntToString(int x, char ret[])
   return ret;
 }
 
-void freiar()
-{
+void freiar(int torque1, int torque2)
+{ 
+  /* enquanto a velocidade for diferente de 0 */
+  /* seta torque contrário até que ela seja 0 */
+  /* a velocidade sendo 0, zera o torque */
 
+  /* pega cordenadas antes dos 3 ms */
+  Vector3 *cord;
+  get_current_GPS_position(cord);
+
+  /* obtem tempo */
+  unsigned int tempo1 = get_time();
+  unsigned int tempo2 = get_time();
+
+  /* pega tempo após 3 ms */
+  while(tempo2 - tempo1 != 3)
+  {
+    tempo2 = get_time();
+  }
+
+  /* pega cordenada depois de 3 ms */
+  Vector3 *cord2;
+  get_current_GPS_position(cord2);
+
+
+  /* obtem velocidade */
+  int vx = (cord2->x - cord->x)/(tempo2-tempo1);
+  int vz = (cord2->z - cord->z)/(tempo2-tempo1);
+  set_torque((-1)*torque1,(-1)*torque2);
+
+  while(vx != 0 && vz != 0)
+  {
+    tempo1 = get_time();
+    tempo2 = get_time();
+
+    /* pega cordenadas antes dos 3 ms */
+    get_current_GPS_position(cord);
+
+    /* pega tempo após 3 ms */
+    while(tempo2 - tempo1 != 3)
+    {
+      tempo2 = get_time();
+    }
+
+    /* pega cordenada depois de 3 ms */
+    get_current_GPS_position(cord2);
+
+    /* pega velocidade após 3 ms */
+    vx = (cord2->x - cord->x)/(tempo2-tempo1);
+    vz = (cord2->z - cord->z)/(tempo2-tempo1);
+  }
+
+  /* chegou aqui, a velocidade é zero: zera o torque */
+  set_torque(0,0);
 }
