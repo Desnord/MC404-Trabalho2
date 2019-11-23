@@ -28,35 +28,29 @@ char *IntToString(int x, char ret[]);
 
 int tamanhoNumero(int x);
 
+void freiar(int torque1, int torque2);
+
 int main()
-{
+{ 
+  /* variáveis para escrita */
   char digits_str[20];
   char barran[2];
   barran[0] = '\n';
   barran[1] = '\0';
 
+  /* nao sei  oq fazem aqui */
   int a, aux, i;
   short int b;
 
-  /* teste */
-  set_torque(-10,-10);
-
-  unsigned int aa = get_time();
-  unsigned int bb = get_time();
-
-  while(bb - aa != 100)
-  {
-    bb = get_time();
-  }
-
-  puts("teste\0");
-  set_torque(10,10);
-
-  /* fim teste */
-
   Vector3 *vector;
   get_gyro_angles(vector);
-  achar_amigo(friends_locations[0].x, friends_locations[0].z);
+
+
+  /* acha todos os amigos no vetor de amigos */
+  for(int i = 0; i < 5; i++)
+  {
+    achar_amigo(friends_locations[i].x, friends_locations[i].z);
+  }
   
   while (1) {
     continue;
@@ -86,13 +80,20 @@ int get_distance_squared(int pos1_x, int pos1_z, int pos2_x, int pos2_z) {
 }
 
 void achar_amigo(int pos_x, int pos_z) {
+
+  /* variáveis de escrita */
   char digits_str[20];
   char barran[2];
   barran[0] = '\n';
   barran[1] = '\0';
+
+  /* struct de posicao */
   Vector3 *uoli_pos;
-  get_current_GPS_position(uoli_pos);
+  get_current_GPS_position(uoli_pos); /* pega posicao atual do ouli */
   
+  /* vira para a direcao do amigo */
+  
+
 }
 
 int tamanhoNumero(int x)
@@ -139,7 +140,7 @@ void freiar(int torque1, int torque2)
   /* seta torque contrário até que ela seja 0 */
   /* a velocidade sendo 0, zera o torque */
 
-  /* pega cordenadas antes dos 3 ms */
+  /* pega cordenadas antes dos 100 ms */
   Vector3 *cord;
   get_current_GPS_position(cord);
 
