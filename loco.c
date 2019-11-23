@@ -30,6 +30,8 @@ int tamanhoNumero(int x);
 
 void freiar(int torque1, int torque2);
 
+int elevacao();
+
 int main()
 { 
   /* variáveis para escrita */
@@ -38,19 +40,16 @@ int main()
   barran[0] = '\n';
   barran[1] = '\0';
 
-  /* nao sei  oq fazem aqui */
-  int a, aux, i;
+  int a, aux, i, j;
   short int b;
 
-  Vector3 *vector;
+  Vector3 *vector, *uoli_pos;
   get_gyro_angles(vector);
-
-
+  
+  i = set_head_servo(0, 27);
   /* acha todos os amigos no vetor de amigos */
-  for(int i = 0; i < 5; i++)
-  {
-    achar_amigo(friends_locations[i].x, friends_locations[i].z);
-  }
+  
+  achar_amigo(friends_locations[0].x, friends_locations[0].z);
   
   while (1) {
     continue;
@@ -59,41 +58,177 @@ int main()
   return 0;
 }
 
-/*parametros: 1 (angulo para alinhamento)*/
 void alinha_angulo(int angulo) {
-  /*o angulo para o eixo x positivo e 90 - gira o uoli até chegar no angulo desejado */
   Vector3 *aux;
   get_gyro_angles(aux);
   set_torque(20, -20);
   while (aux->y < angulo - 5 || aux->y > angulo + 5) {
     get_gyro_angles(aux);
   }
-  set_torque(0,0);
+  set_torque(0,0);    
   return;
 }
 
+//retorna a distancia ao quadrado entre dois pontos
 int get_distance_squared(int pos1_x, int pos1_z, int pos2_x, int pos2_z) {
-  int aux1, aux2;
+  int aux1, aux2, ret;
   aux1 = pos1_x - pos2_x;
   aux2 = pos1_z - pos2_z;
-  return ((aux1 * aux1) + (aux2 * aux2));
-}
-
-void achar_amigo(int pos_x, int pos_z) {
-
-  /* variáveis de escrita */
+  
   char digits_str[20];
   char barran[2];
   barran[0] = '\n';
   barran[1] = '\0';
 
+  aux1 = aux1 / 10;
+  aux2 = aux2 / 10;
+
+  puts(IntToString(aux1, digits_str));
+  puts(barran);
+  puts(IntToString(aux2, digits_str));
+  puts(barran);
+
+  aux1 = aux1 * aux1;
+  aux2 = aux2 * aux2;
+  ret = aux1 + aux2;
+  return ret;
+}
+
+void achar_amigo(int pos_x, int pos_z) {
+  int i, j;
+
+  /* variáveis de escrita */
+  char digits_str[20];
+  char barran[2];
+  int sinal_x, sinal_y;
+  barran[0] = '\n';
+  barran[1] = '\0';
+
+  int sinal_x, sinal_z;
+  int i, j;
+
   /* struct de posicao */
   Vector3 *uoli_pos;
-  get_current_GPS_position(uoli_pos); /* pega posicao atual do ouli */
-  
-  /* vira para a direcao do amigo */
-  
 
+  get_current_GPS_position(uoli_pos);
+
+  while (get_distance_squared(pos_x, uoli_pos->x, pos_z, uoli_pos->z) > 25)
+  {
+    puts("tentativa");
+    puts(barran);
+    get_current_GPS_position(uoli_pos); /* pega posicao atual do ouli */
+
+    sinal_x = pos_x - uoli_pos->x; 
+
+    if (sinal_x > 5) 
+    {
+      puts("positivo_x");
+      puts(barran);
+      alinha_angulo(90);
+    }
+
+    else if (sinal_x < -5)
+    {
+      alinha_angulo(270);
+      puts("negativo_x");
+      puts(barran);
+    }
+
+    set_torque(8, 8);
+    puts("anda");
+    puts(barran);
+
+    i = get_us_distance(); 
+    while ((i == -1) && (!elevacao())) 
+    {
+      i = get_us_distance();
+      puts("continua");
+      puts(barran);
+      continue;
+    }
+
+    i = get_time();
+    j = get_time();
+    if (elevacao()) 
+    {
+      puts("ingrime");
+      freiar(50, 50);
+      while (j - i < 50) 
+      {
+      j = get_time();
+      continue;
+      }
+    }
+    else
+    {
+      freiar(50, 50);
+      puts("n anda");
+      puts(barran);
+      i = get_time();
+      j = get_time();
+      while (j - i < 10) 
+      {
+      j = get_time();
+      continue;
+      }
+    }
+
+    sinal_z = pos_z - uoli_pos->z; 
+
+    if (sinal_z > 5) 
+    {
+      puts("positivo_z");
+      puts(barran);
+      alinha_angulo(0);
+    }
+
+    else if (sinal_z < -5)
+    {
+      alinha_angulo(180);
+      puts("negativo_z");
+      puts(barran);
+    }
+
+    set_torque(8, 8);
+    puts("anda");
+    puts(barran);
+
+    i = get_us_distance(); 
+    while ((i == -1) && (!elevacao())) 
+    {
+      i = get_us_distance();
+      puts("continua");
+      puts(barran);
+      continue;
+    }
+    i = get_time();
+    j = get_time();
+
+    if (elevacao()) 
+    {
+      freiar(50, 50);
+      puts("ingrime");
+      while (j - i < 50) 
+      {
+      j = get_time();
+      continue;
+      }
+    }
+
+    else
+    {
+      freiar(50, 50);
+      puts("n anda");
+      puts(barran);
+      while (j - i < 10) 
+      {
+      j = get_time();
+      continue;
+      }
+    }
+  }
+  puts("achei tt");
+  return;
 }
 
 int tamanhoNumero(int x)
@@ -189,3 +324,19 @@ void freiar(int torque1, int torque2)
   /* chegou aqui, a velocidade é zero: zera o torque */
   set_torque(0,0);
 }
+
+//retorna 1 se o uoli esta em um morro, 0 caso contrario
+int elevacao() {
+  char barran[2];
+  barran[0] = '\n';
+  barran[1] = '\0';
+  char digits_str[20];
+  int ret = 0;
+  Vector3 *aux;
+  get_gyro_angles(aux);
+  if ((aux->x > 10 && aux->x < 355) || (aux->z > 10 && aux->z < 355)) {
+    ret = 1;
+  }
+  return ret;
+}
+

@@ -408,6 +408,9 @@ _start:
     csrw mepc, t0 # no registrador mepc
 
     mret # PC <= MEPC; MIE <= MPIE; Muda modo para MPP
+
+    loop:
+        j loop
 #-----------------------------------------------------------------------------------------------
 
 rot_tempo: .skip 4
