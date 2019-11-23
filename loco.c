@@ -49,17 +49,6 @@ int main()
   return 0;
 }
 
-/*parametros: 1 (se alinhamento positivo) ou -1 (alinhamento negativo)*/
-void alinha_angulo(int angulo) {
-  /*o angulo para o eixo x positivo e 90 - gira o uoli até chegar no angulo desejado */
-  set_torque(20, -20);
-  while (aux->y < angulo - 5 || aux->y > angulo + 5) {
-    get_gyro_angles(aux);
-  }
-  set_torque(0,0);
-  return;
-}
-
 int get_distance_squared(int pos1_x, int pos1_z, int pos2_x, int pos2_z) {
   int aux1, aux2;
   aux1 = pos1_x - pos2_x;
@@ -115,3 +104,33 @@ char *IntToString(int x, char ret[])
   return ret;
 }
 
+
+//retorna 1 se o uoli esta em um morro, 0 caso contrario
+int elevacao() {
+  char barran[2];
+  barran[0] = '\n';
+  barran[1] = '\0';
+  char digits_str[20];
+  int ret = 0;
+  Vector3 *aux;
+  get_gyro_angles(aux);
+  if ((aux->x > 20 && aux->x < 355) || (aux->z > 20 && aux->z < 355)) {
+    puts(IntToString(aux->x + 1, digits_str));
+    puts(barran);
+    puts(IntToString(aux->z, digits_str));
+    puts(barran);
+    ret = 1;
+  }
+  return ret;
+}
+
+void alinha_angulo(int angulo) {
+  Vector3 *aux;
+  get_gyro_angles(aux);
+  set_torque(20, -20);
+  while (aux->y < angulo - 5 || aux->y > angulo + 5) {
+    get_gyro_angles(aux);
+  }
+  set_torque(0,0);    
+  return;
+}
