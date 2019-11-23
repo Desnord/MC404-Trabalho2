@@ -7,6 +7,7 @@
 int_handler:
     salva:
         csrrw t6,mscratch,t6
+        addi t6, t6, -104
         sw a1, 0(t6)  # salva a1 
         sw a2, 4(t6)  # salva a2 
         sw a3, 8(t6)  # salva a3 
@@ -30,12 +31,12 @@ int_handler:
         sw s9, 84(t6) # salva s9
         sw s10, 88(t6) # salva s10 
         sw s11, 92(t6) # salva s11 
+        sw a0, 96(t6)   #salva a0
+        sw t0, 100(t6)   #salva a0
 
     #ve se é interrupcao do gpt
     csrr t0, mcause
     blt t0, zero, gpt_treatment
-    #ve se eh zero
-    beq t0, zero, ret_syscall
 
     li t0, 16
     beq t0, a7, read_ultrasonic_sensor
@@ -63,6 +64,12 @@ int_handler:
 #-----------------------------------------------------------------------------------------------
 ret_syscall: 
     restaura:
+
+        # arruma mepc para retornar ao ponto de execucao anterior
+        csrr t0, mepc
+        addi t0, t0, 4 
+        csrw mepc, t0  
+
         lw a1, 0(t6)  # carrega a1 
         lw a2, 4(t6)  # carrega a2 
         lw a3, 8(t6)  # carrega a3 
@@ -86,19 +93,33 @@ ret_syscall:
         lw s9, 84(t6) # carrega s9
         lw s10, 88(t6) # carrega s10 
         lw s11, 92(t6) # carrega s11 
+        lw t0, 100(t6)   #carrega t0
+        addi t6, t6, 104
         csrrw t6,mscratch,t6 
+
+        mret     
+#-----------------------------------------------------------------------------------------------
+ret_gpt: 
+    restaura2:
 
         # arruma mepc para retornar ao ponto de execucao anterior
         csrr t0, mepc
-        addi t0, t0, 4 
         csrw mepc, t0  
+
+        lw a1, 0(t6)  # carrega a1 
+        lw a0, 96(t6)   #carrega a0
+        lw t0, 100(t6)   #carrega t0
+        addi t6, t6, 104
+
+        csrrw t6,mscratch,t6 
+
         mret     
 #-----------------------------------------------------------------------------------------------
 gpt_treatment: 
-    #checa se nao ha interrupcoes nao tratadas
-    li a0, GPT_FLAG
-    lw a0, 0(a0)
-    bneq zero, a0, ret_syscall 
+    #checa se ha interrupcoes nao tratadas
+    la a0, GPT_FLAG
+    lb a0, 0(a0)
+    beq zero, a0, ret_gpt 
 
     #adiciona 1 no tempo
     la a0, rot_tempo
@@ -106,27 +127,27 @@ gpt_treatment:
     addi a1, a1, 1
     sw a1, 0(a0)
 
+    #set do valor para 0 (interrupção tratada)
+    la a0, GPT_FLAG
+    sb zero, 0(a0)
+
     #manda esperar 100ms
-    li a0, GPT_GEN
+    la a0, GPT_GEN
     li t0, 100
     sw t0, 0(a0)
 
-    #set do valor para 0 (interrupção tratada)
-    li a0, GPT_FLAG
-    sw zero, 0(a0)
-
-    j ret_syscall
+    j ret_gpt
 
 #-----------------------------------------------------------------------------------------------
 set_servo_angles:
 #parâmetros: a0(id do servo), a1(ângulo para o servo)
 #retorno: a0(-1 se o ângulo é inválido, -2 se o id é inválido , 0 caso contrário)
 
-    li t0, 1
+    li t0, 0
     beq a0, t0, servo_base
-    li t0, 2
+    li t0, 1
     beq a0, t0, servo_mid
-    li t0 3
+    li t0, 2
     beq a0, t0, servo_top
 
     #se não pulou, id é inválido
@@ -141,7 +162,7 @@ set_servo_angles:
         li t0, 116
         bgt a1, t0, erro_angulo_servo
         li a0, 0xFFFF001E
-        sw a1, 0(a0)
+        sb a1, 0(a0)
         j ret_syscall
     servo_mid:
         li t0, 52
@@ -149,14 +170,14 @@ set_servo_angles:
         li t0, 90
         bgt a1, t0, erro_angulo_servo
         li a0, 0xFFFF001D
-        sw a1, 0(a0)
+        sb a1, 0(a0)
         j ret_syscall
     servo_top:
         blt a1, zero, erro_angulo_servo
         li t0, 156
         bgt a1, t0, erro_angulo_servo
         li a0, 0xFFFF001C
-        sw a1, 0(a0)
+        sb a1, 0(a0)
         j ret_syscall
 
     erro_angulo_servo:
@@ -167,9 +188,9 @@ set_engine_torque:
     #parâmetros: a0(id do motor), a1(torque do motor)
     #retorno: a0(-1 se o id for invalido, 0 caso contrario)
 
-    li t0, 1
+    li t0, 0
     beq t0, a0, motor_1
-    li t0, 2
+    li t0, 1
     beq t0, a0, motor_2
     
     #id inválido
@@ -281,22 +302,21 @@ write:
     # escreve [valor em a2] bytes
     li t3,0
     while_write:
-      bge t3,a2,not_stdout:
-        lb t4,0(a1) # le o primeiro byte
+      bge t3,a2,not_stdout
+        lb t4,0(a1) # le byte atual
 
         # poe o byte no endereco do periferico
         li t1,0xFFFF0109
         sb t4,0(t1)
 
-
         # atribui valor 1 ao periferico para iniciar transmissao
         li t2,0xFFFF0108
         li t1,1
-        sw t1,0(t2)
+        sb t1,0(t2)
 
         # espera o valor do periferico ser 0 para prosseguir com a escrita
         while_wait_write:
-            lw t1,0(t2)
+            lb t1,0(t2)
             beq t1,zero,panama
               j while_wait_write
             panama:
@@ -311,6 +331,7 @@ write:
 #-----------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------
+.globl _start
 _start:
     # Configura o tratador de interrupções
     la t0, int_handler # Grava o endereço do rótulo int_handler
@@ -336,9 +357,10 @@ _start:
     mv sp, t1
 
     gpt_setup:
-        la t0, rot_tempo
-        sw zero, 0(s0)
-        li t1, GPT_GEN
+        la t0, rot_tempo    #set do tempo em 0
+        li t1, 1
+        sw t1, 0(t0)
+        la t1, GPT_GEN  #gera a primeira interrupção
         li t0, 100
         sw t0, 0(t1)
     
@@ -359,19 +381,19 @@ _start:
     # seta posicao do corpo do ouli
     
      # seta BASE
-    li a0,1
+    li a0,0
     li a1,31
     li a7,17
     ecall
 
     # seta MID
-    li a0,2
+    li a0,1
     li a1,80
     li a7,17
     ecall
 
     # seta TOP
-    li a0,3
+    li a0,2
     li a1,78
     li a7,17
     ecall
@@ -382,14 +404,11 @@ _start:
     and t1, t1, t2 # com o valor 00
     csrw mstatus, t1
 
-    la t0, user # Grava o endereço do rótulo user
+    la t0, main # Grava o endereço do rótulo user
     csrw mepc, t0 # no registrador mepc
 
     mret # PC <= MEPC; MIE <= MPIE; Muda modo para MPP
 #-----------------------------------------------------------------------------------------------
-user:
-    loop:
-        j loop
 
 rot_tempo: .skip 4
 reg_buffer: .skip 200

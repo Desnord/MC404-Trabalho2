@@ -1,21 +1,32 @@
+#-----------------------------------------------------------------------------------------------
+.globl puts
+.globl set_time
+.globl get_time
+.globl get_gyro_angles
+.globl get_current_GPS_position
+.globl get_us_distance
+.globl set_head_servo
+.globl set_engine_torque
+.globl set_torque
+
 set_torque:
     #checa a validade dos valores
     li t0, -100
-    blt t0, a0, invalid_value
-    blt t0, a1, invalid_value
+    blt a0, t0, invalid_value
+    blt a1, t0, invalid_value
     li t0, 100
-    bgt t0, a0, invalid_value
-    bgt t0, a1, invalid_value
+    bgt a0, t0, invalid_value
+    bgt a1, t0, invalid_value
 
     mv t0, a0
     mv t1, a1
 
-    li a0, 1
+    li a0, 0
     mv a1, t0
     li a7, 18
     ecall
 
-    li a0, 2
+    li a0, 1
     mv a1, t1
     li a7, 18
     ecall
@@ -25,7 +36,7 @@ set_torque:
     invalid_value:
         li a0, -1
         ret
-#-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------s
 set_engine_torque:
     li a7, 18
     ecall
@@ -66,7 +77,7 @@ puts:
 
     mv t1,a0 # o parametro tem a string a ser escrita
 
-    #descobre o tamanho da string, ou seja, conta até encontrar \0
+    #descobre o tamanho da string, ou seja, conta até encontrar '\0' == (0) == (null)
     li t2,0
     while_not_EOS:
         lb t3,0(t1)
