@@ -153,7 +153,7 @@ void achar_amigo(int pos_x, int pos_z) {
     i = get_time();
     j = get_time();
 
-    if (elevacao() || perigo()) 
+    if (elevacao()) 
     {
       puts("[ ingrime ]");
       freiar(50, 50);
@@ -210,7 +210,7 @@ void achar_amigo(int pos_x, int pos_z) {
     i = get_time();
     j = get_time();
 
-    if (elevacao() || perigo()) 
+    if (elevacao()) 
     {
       freiar(50, 50);
       puts("[ ingrime ]");
