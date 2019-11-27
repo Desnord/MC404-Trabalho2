@@ -103,7 +103,7 @@ int get_distance_squared(int pos1_x, int pos1_z) {
   aux1 = aux1 * aux1;
   aux2 = aux2 * aux2;
 
-  puts("Distância: ");
+  puts("Squared distance: ");
   puts(IntToString(aux1 + aux2, digits_str));
   puts(barran);
   
@@ -125,8 +125,10 @@ void achar_amigo(int pos_x, int pos_z) {
   Vector3 *uoli_pos;
   get_current_GPS_position(uoli_pos);
 
+  puts("initial pos x: ");
   puts(IntToString(uoli_pos->x, digits_str));
   puts(barran);
+  puts("initial pos z: ");
   puts(IntToString(uoli_pos->z, digits_str));
   puts(barran);
 
@@ -378,8 +380,10 @@ int elevacao() {
   Vector3 *aux;
   get_gyro_angles(aux);
   if ((aux->x > 10 && aux->x < 355) || (aux->z > 10 && aux->z < 355)) {
+    puts("angle: ");
     puts(IntToString(aux->x, digits_str));
     puts(barran);
+    puts("angle: ");
     puts(IntToString(aux->z, digits_str));
     puts(barran);
     ret = 1;
