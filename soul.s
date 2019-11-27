@@ -143,11 +143,11 @@ set_servo_angles:
 #parâmetros: a0(id do servo), a1(ângulo para o servo)
 #retorno: a0(-1 se o ângulo é inválido, -2 se o id é inválido , 0 caso contrário)
 
-    li t0, 0
-    beq a0, t0, servo_base
     li t0, 1
-    beq a0, t0, servo_mid
+    beq a0, t0, servo_base
     li t0, 2
+    beq a0, t0, servo_mid
+    li t0, 3
     beq a0, t0, servo_top
 
     #se não pulou, id é inválido
