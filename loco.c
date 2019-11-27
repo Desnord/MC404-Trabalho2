@@ -48,7 +48,7 @@ int main()
   Vector3 *vector, *uoli_pos;
   get_gyro_angles(vector);
   
-  i = set_head_servo(0, 28);
+  i = set_head_servo(0, 27);
 
   /* acha todos os amigos no vetor de amigos */
   for(int jj = 0; jj < 5; jj++)
@@ -129,7 +129,7 @@ void achar_amigo(int pos_x, int pos_z) {
   puts(IntToString(uoli_pos->z, digits_str));
   puts(barran);
   /* anda até perto do amigo */
-  while (get_distance_squared(pos_x, pos_z) > 500)
+  while (get_distance_squared(pos_x, pos_z) > 300)
   {
     puts("[ tentativa ]");
     puts(barran);
@@ -156,7 +156,7 @@ void achar_amigo(int pos_x, int pos_z) {
     puts(barran);
 
     i = get_us_distance(); 
-    while ((i == -1) && (!elevacao())/* && (!perigo())*/&& ((get_distance_squared(pos_x, pos_z) > 500))) 
+    while ((i == -1) && (!elevacao())/* && (!perigo())*/&& ((get_distance_squared(pos_x, pos_z) > 300))) 
     {
       i = get_us_distance();
       puts("[ continua ]");
@@ -217,7 +217,7 @@ void achar_amigo(int pos_x, int pos_z) {
     puts(barran);
 
     i = get_us_distance(); 
-    while ((i == -1) && (!elevacao()) /*&& (!perigo())*/&& ((get_distance_squared(pos_x, pos_z) > 500))) 
+    while ((i == -1) && (!elevacao()) /*&& (!perigo())*/&& ((get_distance_squared(pos_x, pos_z) > 300))) 
     {
       i = get_us_distance();
       puts("[ continua ]");
