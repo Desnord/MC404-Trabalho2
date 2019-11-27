@@ -121,10 +121,10 @@ gpt_treatment:
     lb a0, 0(a0)
     beq zero, a0, ret_gpt 
 
-    #adiciona 1 no tempo
+    #adiciona 100ms no tempo
     la a0, rot_tempo
     lw a1, 0(a0)
-    addi a1, a1, 1
+    addi a1, a1, 100
     sw a1, 0(a0)
 
     #set do valor para 0 (interrupção tratada)

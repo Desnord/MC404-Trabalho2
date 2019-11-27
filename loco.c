@@ -22,7 +22,7 @@ void alinha_angulo(int sinal);
 
 void achar_amigo(int pos_x, int pos_z);
 
-int get_distance_squared(int pos1_x, int pos1_z, int pos2_x, int pos2_z);
+int get_distance_squared(int pos1_x, int pos1_z);
 
 char *IntToString(int x, char ret[]);
 
@@ -48,10 +48,10 @@ int main()
   Vector3 *vector, *uoli_pos;
   get_gyro_angles(vector);
   
-  i = set_head_servo(0, 27);
+  i = set_head_servo(0, 28);
 
   /* acha todos os amigos no vetor de amigos */
-  for(int jj = 0; jj<5; jj++)
+  for(int jj = 0; jj < 5; jj++)
   {
     achar_amigo(friends_locations[jj].x, friends_locations[jj].z);
   }
@@ -69,6 +69,14 @@ void alinha_angulo(int angulo) {
   Vector3 *aux;
   get_gyro_angles(aux);
   set_torque(20, -20);
+  if (angulo == 0) 
+  {
+    while ((aux->y > 5) && (aux->y < 355))
+    {
+      get_gyro_angles(aux);
+    }
+    return;
+  }
   while (aux->y < angulo - 5 || aux->y > angulo + 5) {
     get_gyro_angles(aux);
   }
@@ -76,8 +84,16 @@ void alinha_angulo(int angulo) {
   return;
 }
 
-//retorna a distancia ao quadrado entre dois pontos
-int get_distance_squared(int pos1_x, int pos1_z, int pos2_x, int pos2_z) {
+//retorna a distancia ao quadrado entre um ponto e o uoli
+int get_distance_squared(int pos1_x, int pos1_z) {
+  Vector3 *uoli;
+
+  get_current_GPS_position(uoli);
+
+  int pos2_x, pos2_z;
+  pos2_x = uoli->x;
+  pos2_z = uoli->z;
+
   int aux1 = pos1_x - pos2_x;
   int aux2 = pos1_z - pos2_z;
   
@@ -86,16 +102,10 @@ int get_distance_squared(int pos1_x, int pos1_z, int pos2_x, int pos2_z) {
   barran[0] = '\n';
   barran[1] = '\0';
 
-  aux1 = aux1 / 10;
-  aux2 = aux2 / 10;
-
-  puts(IntToString(aux1, digits_str));
-  puts(" ");
-  puts(IntToString(aux2, digits_str));
-  puts(barran);
-
   aux1 = aux1 * aux1;
   aux2 = aux2 * aux2;
+  puts(IntToString(aux1 + aux2, digits_str));
+  puts(barran);
   return aux1 + aux2;
 }
 
@@ -114,13 +124,18 @@ void achar_amigo(int pos_x, int pos_z) {
   Vector3 *uoli_pos;
   get_current_GPS_position(uoli_pos);
 
+  puts(IntToString(uoli_pos->x, digits_str));
+  puts(barran);
+  puts(IntToString(uoli_pos->z, digits_str));
+  puts(barran);
   /* anda até perto do amigo */
-  while (get_distance_squared(pos_x, uoli_pos->x, pos_z, uoli_pos->z) > 25)
+  while (get_distance_squared(pos_x, pos_z) > 500)
   {
     puts("[ tentativa ]");
     puts(barran);
 
     /* arruma em x */
+    get_current_GPS_position(uoli_pos);
     sinal_x = pos_x - uoli_pos->x; 
 
     if (sinal_x > 5) 
@@ -141,7 +156,7 @@ void achar_amigo(int pos_x, int pos_z) {
     puts(barran);
 
     i = get_us_distance(); 
-    while ((i == -1) && (!elevacao()) && (!perigo())) 
+    while ((i == -1) && (!elevacao())/* && (!perigo())*/&& ((get_distance_squared(pos_x, pos_z) > 500))) 
     {
       i = get_us_distance();
       puts("[ continua ]");
@@ -149,7 +164,10 @@ void achar_amigo(int pos_x, int pos_z) {
 
       continue;
     }
-
+    /*if (perigo()) 
+    {
+      puts("INIMIGO");
+    }*/
     i = get_time();
     j = get_time();
 
@@ -157,7 +175,7 @@ void achar_amigo(int pos_x, int pos_z) {
     {
       puts("[ ingrime ]");
       freiar(50, 50);
-      while (j - i < 50) 
+      while (j - i < 5000) 
       {
         j = get_time();
         continue;
@@ -170,7 +188,7 @@ void achar_amigo(int pos_x, int pos_z) {
       puts(barran);
       i = get_time();
       j = get_time();
-      while (j - i < 10) 
+      while (j - i < 100) 
       {
         j = get_time();
         continue;
@@ -178,6 +196,7 @@ void achar_amigo(int pos_x, int pos_z) {
     }
 
     /* arruma em z */
+    get_current_GPS_position(uoli_pos);
     sinal_z = pos_z - uoli_pos->z; 
 
     if (sinal_z > 5) 
@@ -198,7 +217,7 @@ void achar_amigo(int pos_x, int pos_z) {
     puts(barran);
 
     i = get_us_distance(); 
-    while ((i == -1) && (!elevacao()) && (!perigo())) 
+    while ((i == -1) && (!elevacao()) /*&& (!perigo())*/&& ((get_distance_squared(pos_x, pos_z) > 500))) 
     {
       i = get_us_distance();
       puts("[ continua ]");
@@ -214,7 +233,7 @@ void achar_amigo(int pos_x, int pos_z) {
     {
       freiar(50, 50);
       puts("[ ingrime ]");
-      while (j - i < 50) 
+      while (j - i < 5000) 
       {
         j = get_time();
         continue;
@@ -225,7 +244,7 @@ void achar_amigo(int pos_x, int pos_z) {
       freiar(50, 50);
       puts("[ nao anda ]");
       puts(barran);
-      while (j - i < 10) 
+      while (j - i < 100) 
       {
         j = get_time();
         continue;
@@ -293,12 +312,12 @@ void freiar(int torque1, int torque2)
   unsigned int tempo2 = get_time();
 
   /* pega tempo após 3 ms */
-  while(tempo2 - tempo1 != 3)
+  while(tempo2 - tempo1 != 300)
   {
     tempo2 = get_time();
   }
 
-  /* pega cordenada depois de 3 ms */
+  /* pega cordenada depois de 300 ms */
   Vector3 *cord2;
   get_current_GPS_position(cord2);
 
@@ -316,16 +335,16 @@ void freiar(int torque1, int torque2)
     /* pega cordenadas antes dos 3 ms */
     get_current_GPS_position(cord);
 
-    /* pega tempo após 3 ms */
-    while(tempo2 - tempo1 != 3)
+    /* pega tempo após 300 ms */
+    while(tempo2 - tempo1 != 300)
     {
       tempo2 = get_time();
     }
 
-    /* pega cordenada depois de 3 ms */
+    /* pega cordenada depois de 300 ms */
     get_current_GPS_position(cord2);
 
-    /* pega velocidade após 3 ms */
+    /* pega velocidade após 300 ms */
     vx = (cord2->x - cord->x)/(tempo2-tempo1);
     vz = (cord2->z - cord->z)/(tempo2-tempo1);
   }
@@ -344,6 +363,10 @@ int elevacao() {
   Vector3 *aux;
   get_gyro_angles(aux);
   if ((aux->x > 10 && aux->x < 355) || (aux->z > 10 && aux->z < 355)) {
+    puts(IntToString(aux->x, digits_str));
+    puts(barran);
+    puts(IntToString(aux->z, digits_str));
+    puts(barran);
     ret = 1;
   }
   return ret;
@@ -365,13 +388,13 @@ int perigo()
       int difX = uoli->x-x;
       int difZ = uoli->z-z;
 
-      difX = difX/10;
+      difX = difX;
       difX = difX*difX;
 
-      difZ = difZ/10;
+      difZ = difZ;
       difZ = difZ*difZ;
 
-      if(difX + difZ > 36)
+      if(difX + difZ > 3600)
       {
         return 0;
       }
