@@ -44,9 +44,6 @@ int main()
 
   int a, aux, i, j;
   short int b;
-
-  Vector3 *vector, *uoli_pos;
-  get_gyro_angles(vector);
   
   i = set_head_servo(0, 28);
 
