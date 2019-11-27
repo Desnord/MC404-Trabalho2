@@ -48,15 +48,13 @@ int main()
   Vector3 *vector, *uoli_pos;
   get_gyro_angles(vector);
   
-  i = set_head_servo(0, 27);
+  i = set_head_servo(0, 28);
 
   /* acha todos os amigos no vetor de amigos */
   for(int jj = 0; jj < 5; jj++)
   {
     achar_amigo(friends_locations[jj].x, friends_locations[jj].z);
   }
-
-  //achar_amigo(friends_locations[0].x, friends_locations[0].z);
   
   while (1) {
     continue;
@@ -129,7 +127,7 @@ void achar_amigo(int pos_x, int pos_z) {
   puts(IntToString(uoli_pos->z, digits_str));
   puts(barran);
   /* anda até perto do amigo */
-  while (get_distance_squared(pos_x, pos_z) > 300)
+  while (get_distance_squared(pos_x, pos_z) > 250)
   {
     puts("[ tentativa ]");
     puts(barran);
@@ -156,18 +154,21 @@ void achar_amigo(int pos_x, int pos_z) {
     puts(barran);
 
     i = get_us_distance(); 
-    while ((i == -1) && (!elevacao())/* && (!perigo())*/&& ((get_distance_squared(pos_x, pos_z) > 300))) 
+    while ((i == -1) && (!elevacao()) /*&& (!perigo())*/ && ((get_distance_squared(pos_x, pos_z) > 250))) 
     {
       i = get_us_distance();
+      get_current_GPS_position(uoli_pos);
+      sinal_x = pos_x - uoli_pos->x;
+      if (sinal_x > -5 && sinal_x < 5)
+      {
+        break;
+      }
       puts("[ continua ]");
       puts(barran);
 
       continue;
     }
-    /*if (perigo()) 
-    {
-      puts("INIMIGO");
-    }*/
+
     i = get_time();
     j = get_time();
 
@@ -188,7 +189,7 @@ void achar_amigo(int pos_x, int pos_z) {
       puts(barran);
       i = get_time();
       j = get_time();
-      while (j - i < 100) 
+      while (j - i < 2000) 
       {
         j = get_time();
         continue;
@@ -217,9 +218,15 @@ void achar_amigo(int pos_x, int pos_z) {
     puts(barran);
 
     i = get_us_distance(); 
-    while ((i == -1) && (!elevacao()) /*&& (!perigo())*/&& ((get_distance_squared(pos_x, pos_z) > 300))) 
+    while ((i == -1) && (!elevacao()) /*&& (!perigo())*/ && ((get_distance_squared(pos_x, pos_z) > 250))) 
     {
       i = get_us_distance();
+      get_current_GPS_position(uoli_pos);
+      sinal_z = pos_z - uoli_pos->z;
+      if (sinal_z > -5 && sinal_z < 5)
+      {
+        break;
+      }
       puts("[ continua ]");
       puts(barran);
 
@@ -244,7 +251,7 @@ void achar_amigo(int pos_x, int pos_z) {
       freiar(50, 50);
       puts("[ nao anda ]");
       puts(barran);
-      while (j - i < 100) 
+      while (j - i < 2000) 
       {
         j = get_time();
         continue;
@@ -394,13 +401,14 @@ int perigo()
       difZ = difZ;
       difZ = difZ*difZ;
 
-      if(difX + difZ > 3600)
+      if(difX + difZ > 2500)
       {
-        return 0;
+        continue;
       }
       else
       {
         return 1;
       }
     }  
+    return 0;
 }
