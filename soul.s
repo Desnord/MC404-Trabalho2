@@ -358,7 +358,7 @@ _start:
 
     gpt_setup:
         la t0, rot_tempo    #set do tempo em 0
-        li t1, 1
+        li t1, 0
         sw t1, 0(t0)
         la t1, GPT_GEN  #gera a primeira interrupção
         li t0, 100
