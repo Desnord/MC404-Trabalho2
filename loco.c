@@ -104,8 +104,11 @@ int get_distance_squared(int pos1_x, int pos1_z) {
 
   aux1 = aux1 * aux1;
   aux2 = aux2 * aux2;
+
+  puts("Distância até o amigo: ");
   puts(IntToString(aux1 + aux2, digits_str));
   puts(barran);
+  
   return aux1 + aux2;
 }
 
@@ -128,6 +131,7 @@ void achar_amigo(int pos_x, int pos_z) {
   puts(barran);
   puts(IntToString(uoli_pos->z, digits_str));
   puts(barran);
+
   /* anda até perto do amigo */
   while (get_distance_squared(pos_x, pos_z) > 300)
   {
@@ -174,6 +178,7 @@ void achar_amigo(int pos_x, int pos_z) {
     if (elevacao()) 
     {
       puts("[ ingrime ]");
+      puts(barran);
       freiar(50, 50);
       while (j - i < 5000) 
       {
@@ -233,6 +238,7 @@ void achar_amigo(int pos_x, int pos_z) {
     {
       freiar(50, 50);
       puts("[ ingrime ]");
+      puts(barran);
       while (j - i < 5000) 
       {
         j = get_time();
@@ -256,6 +262,8 @@ void achar_amigo(int pos_x, int pos_z) {
   
   /* avisa que achou amigo e termina funcao */
   puts("[ amigo encontrado! ]");
+  puts(barran);
+
   return;
 }
 
