@@ -395,12 +395,8 @@ int perigo()
       difZ = difZ*difZ;
 
       if(difX + difZ > 3600)
-      {
         return 0;
-      }
       else
-      {
         return 1;
-      }
     }  
 }
