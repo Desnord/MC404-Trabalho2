@@ -105,7 +105,7 @@ int get_distance_squared(int pos1_x, int pos1_z) {
   aux1 = aux1 * aux1;
   aux2 = aux2 * aux2;
 
-  puts("Distância até o amigo: ");
+  puts("Distância: ");
   puts(IntToString(aux1 + aux2, digits_str));
   puts(barran);
   
